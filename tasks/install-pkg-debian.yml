@@ -1,0 +1,5 @@
+---
+- name: Install Redis package
+  apt:
+    name: redis-server
+    state: latest
