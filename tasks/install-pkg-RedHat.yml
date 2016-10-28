@@ -1,0 +1,12 @@
+---
+- name: Enable EPEL
+  yum:
+    name: epel-release
+    state: installed
+  when: redis_enable_epel
+
+- name: Install Redis package
+  yum:
+    name: redis-server
+    state: latest
+

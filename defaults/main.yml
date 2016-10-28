@@ -14,6 +14,9 @@ redis_tarball: false
 # The open file limit for Redis/Sentinel
 redis_nofile_limit: 16384
 
+# Used when redis_installation_source is 'pkg' Redis is installed on a RHEL system
+redis_enable_epel: false
+
 ## Role options
 # Configure Redis as a service
 # This creates the init scripts for Redis and ensures the process is running
