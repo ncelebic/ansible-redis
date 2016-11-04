@@ -193,7 +193,7 @@ When using Ansible 2.x, this role will verify the sha1 checksum of the download 
 
 ### Installing from a package
 
-Set the redis_installation_source to "pkg" to install Redis from a package.  This currently works for Debian and Redhat variants.  redis_pkg_version will define the specific version you want to install.  Set redis_pkg_version to "latest" to use the latest package.  Redhat does not include Redis in the default repositories, so make sure the package is available in an extra repository.  
+Set the `redis_installation_source` to `pkg` to install Redis from a package.  This currently works for Debian and Redhat variants.  `redis_pkg_version` will define the specific version you want to install.  Set `redis_pkg_version` to `latest` to use the latest package.  Redhat does not include Redis in the default repositories, so make sure the package is available in an extra repository.  
 
 ## Role Variables
 
@@ -202,6 +202,8 @@ Here is a list of all the default variables for this role, which are also availa
 ``` yml
 ---
 ## Installation options
+redis_installation_source: src
+## Source Options
 redis_version: 2.8.9
 redis_install_dir: /opt/redis
 redis_user: redis
@@ -210,6 +212,8 @@ redis_dir: /var/lib/redis/{{ redis_port }}
 redis_download_url: "http://download.redis.io/releases/redis-{{ redis_version }}.tar.gz"
 redis_verify_checksum: false
 redis_tarball: false
+##Package Options
+redis_pkg_version: latest
 # The open file limit for Redis/Sentinel
 redis_nofile_limit: 16384
 
