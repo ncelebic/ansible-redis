@@ -3,10 +3,10 @@
   yum:
     name: redis
     state: latest
-    when: redis_pkg_version == "latest"
+    when: {{ redis_pkg_version }} == "latest"
 
 - name: Install defined Redis package version
   yum:
     name: redis-{{ redis_pkg_version }}
     state: present
-    when: redis_pkg_version != "latest"
+    when: {{ redis_pkg_version }} != "latest"

@@ -3,10 +3,10 @@
   apt:
     name: redis-server
     state: latest
-    when: redis_pkg_version == "latest"
+    when: {{ redis_pkg_version }} == "latest"
 
 - name: Install defined Redis package version
   apt:
     name: redis-server-{{ redis_pkg_version }}
     state: present
-    when: redis_pkg_version != "latest"
+    when: {{ redis_pkg_version }} != "latest"
