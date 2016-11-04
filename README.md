@@ -144,7 +144,9 @@ This will configure the Sentinel nodes to monitor the master we created above us
 Along with the variables listed above, Sentinel has a number of its own configurables just as Redis server does. These are prefixed with `redis_sentinel_`, and are enumerated in the **Role Variables** section below.
 
 
-## Installing redis from a source file in the ansible role
+## Installing Redis
+
+### Installing redis from a source file in the ansible role
 
 If the environment your server resides in does not allow downloads (i.e. if the machine is sitting in a dmz) set the variable `redis_tarball` to the path of a locally downloaded tar.gz file to prevent a http download from redis.io.
 Do not forget to set the version variable to the same version of the tar.gz. to avoid confusion !
@@ -157,11 +159,11 @@ vars:
 ```
 In this case the source archive is copied towards the server over ssh rather than downloaded.
 
-## Verifying checksums
+#### Verifying checksums
 
 Set the `redis_verify_checksum` variable to true to use the checksum verification option for `get_url`. Note that this will only verify checksums when Redis is downloaded from a URL, not when one is provided in a tarball with `redis_tarball`. Due to differences in the `get_url` module in Ansible 1.x and Ansible 2.x, this feature behaves differently depending on the version of Ansible which you are using.
 
-### Ansible 1.x
+##### Ansible 1.x
 
 In Ansible 1.x, the `get_url` module only support verifying sha256 checksums, which are not provided by default. If you wish to set `redis_verify_checksum`, you must also define a sha256 checksum with the `redis_checksum` variable.
 
@@ -175,7 +177,7 @@ In Ansible 1.x, the `get_url` module only support verifying sha256 checksums, wh
       redis_checksum: b2a791c4ea3bb7268795c45c6321ea5abcc24457178373e6a6e3be6372737f23
 ```
 
-### Ansible 2.x
+##### Ansible 2.x
 
 When using Ansible 2.x, this role will verify the sha1 checksum of the download against checksums defined in the `redis_checksums` variable in `vars/main.yml`. If your version is not defined in here or you wish to override the checksum with one of your own, simply set the `redis_checksum` variable. As in the example below, you will need to prefix the checksum with the type of hash which you are using.
 
@@ -188,6 +190,10 @@ When using Ansible 2.x, this role will verify the sha1 checksum of the download 
       redis_verify_checksum: true
       redis_checksum: "sha256:b2a791c4ea3bb7268795c45c6321ea5abcc24457178373e6a6e3be6372737f23"
 ```
+
+### Installing from a package
+
+Set the redis_installation_source to "pkg" to install Redis from a package.  This currently works for Debian and Redhat variants.  redis_pkg_version will define the specific version you want to install.  Set redis_pkg_version to "latest" to use the latest package.  Redhat does not include Redis in the default repositories, so make sure the package is available in an extra repository.  
 
 ## Role Variables
 
