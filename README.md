@@ -12,7 +12,9 @@
   1. [Single Redis node](#single-redis-node)
   2. [Master-Slave Replication](#master-slave-replication)
   3. [Redis Sentinel](#redis-sentinel)
- 3. [Installing redis from a source file in the ansible role](#installing-redis-from-a-source-file-in-the-ansible-role)
+ 3. [Installing Redis](#installing-redis)
+  1. [Installing from a source file in the ansible role](#installing-redis-from-a-source-file-in-the-ansible-role)
+  2. [Installing from a package](#Installing-from-a-package)
  4. [Verifying checksums](#verifying-checksums)
  5. [Role Variables](#role-variables)
 
@@ -146,7 +148,7 @@ Along with the variables listed above, Sentinel has a number of its own configur
 
 ## Installing Redis
 
-### Installing redis from a source file in the ansible role
+### Installing from a source file in the ansible role
 
 If the environment your server resides in does not allow downloads (i.e. if the machine is sitting in a dmz) set the variable `redis_tarball` to the path of a locally downloaded tar.gz file to prevent a http download from redis.io.
 Do not forget to set the version variable to the same version of the tar.gz. to avoid confusion !
@@ -193,7 +195,7 @@ When using Ansible 2.x, this role will verify the sha1 checksum of the download 
 
 ### Installing from a package
 
-Set the `redis_installation_source` to `pkg` to install Redis from a package.  This currently works for Debian and Redhat variants.  `redis_pkg_version` will define the specific version you want to install.  Set `redis_pkg_version` to `latest` to use the latest package.  Redhat does not include Redis in the default repositories, so make sure the package is available in an extra repository.  
+Set `redis_installation_source` to `pkg` to install Redis from a package.  This currently works for Debian and Redhat variants.  `redis_pkg_version` will define the specific version you want to install.  Set `redis_pkg_version` to `latest` to use the latest package.  Redhat does not include Redis in the default repositories, so make sure the package is available in an accessible repository.  
 
 ## Role Variables
 
