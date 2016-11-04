@@ -1,5 +1,12 @@
 ---
-- name: Install Redis package
+- name: Install latest Redis package
   apt:
-    name: redis-server
+    name: redis
     state: latest
+    when: redis_pkg_version == "latest"
+
+- name: Install defined Redis package version
+  apt:
+    name: redis-server-{{ redis_pkg_version }}
+    state: installed
+    when: redis_pkg_version != "latest"
