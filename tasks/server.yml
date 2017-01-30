@@ -1,29 +1,14 @@
 ---
-- name: create redis working directory
-  file:
-    path: "{{ redis_dir }}"
-    state: directory
-    recurse: yes
-    owner: "{{ redis_user }}"
-
-- name: create redis init script
+- name: create redis service for RHEL7+
   template:
-    src: "{{ item }}"
-    dest: /etc/init.d/{{ redis_service_name }}
+    src: "redis.service.j2"
+    dest: /usr/lib/systemd/system/{{ redis_systemd_service_name }}.service
     mode: 0755
-  # Choose the distro-specific template. We must specify the templates
-  # path here because with_first_found tries to find files in files/
-  with_first_found:
-    - files:
-      - "{{ ansible_os_family }}/redis.init.j2"
-      - default/redis.init.j2
-      paths:
-        - ../templates
   when: redis_as_service
 
 - name: set redis to start at boot
   service:
-    name: "{{ redis_service_name }}"
+    name: "{{ redis_systemd_service_name }}"
     enabled: yes
   when: redis_as_service
 
@@ -52,6 +37,7 @@
     owner: "{{ redis_user }}"
     group: "{{ redis_group }}"
   when: redis_logfile != '""'
+  changed_when: false
 
 - name: check if pid directory exists
   stat:
@@ -70,27 +56,18 @@
     - redis_pidfile != '""'
     - not piddir.stat.exists
 
+- name: create redis etc directory
+  file:
+    state: directory
+    path: "{{ redis_config_dir }}"
+    owner: "{{ redis_user }}"
+    group: "{{ redis_group }}"
+
 - name: create redis config file
   template:
     src: redis.conf.j2
-    dest: /etc/redis/{{ redis_port }}.conf
+    dest: "{{ redis_config }}"
     owner: "{{ redis_user }}"
-  notify: restart redis
-
-- name: add redis init config file
-  template:
-    dest: /etc/sysconfig/{{ redis_service_name }}
-    src: redis.init.conf.j2
-    mode: 0600
-  when: ansible_os_family == "RedHat"
-  notify: restart redis
-
-- name: add redis init config file
-  template:
-    dest: /etc/default/{{ redis_service_name }}
-    src: redis.init.conf.j2
-    mode: 0600
-  when: ansible_os_family == "Debian"
   notify: restart redis
 
 # Flush handlers before ensuring the service is started to prevent
@@ -100,6 +77,6 @@
 
 - name: ensure redis is running
   service:
-    name: "{{ redis_service_name }}"
+    name: "{{ redis_systemd_service_name }}"
     state: started
   when: redis_as_service

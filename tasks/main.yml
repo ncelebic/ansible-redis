@@ -1,10 +1,8 @@
 ---
-- include: check_vars.yml
-
 - include: install.yml
 
 - include: server.yml
-  when: not redis_sentinel
+  when: redis_server
   tags:
     - config
 

@@ -1,15 +1,15 @@
 ---
 ## Installation options
-redis_version: 2.8.9
-redis_install_dir: /opt/redis
-redis_user: redis
+redis_server: true
+
+# Used when redis_installation_source is 'src'
+redis_version: latest
+redis_user: root
 redis_group: "{{ redis_user }}"
-redis_dir: /var/lib/redis/{{ redis_port }}
-redis_download_url: "http://download.redis.io/releases/redis-{{ redis_version }}.tar.gz"
-redis_verify_checksum: false
-redis_tarball: false
+redis_dir: /var/lib/redis/{{ redis_service_name }}
 # The open file limit for Redis/Sentinel
 redis_nofile_limit: 16384
+
 
 ## Role options
 # Configure Redis as a service
@@ -19,7 +19,11 @@ redis_as_service: true
 # Add local facts to /etc/ansible/facts.d for Redis
 redis_local_facts: true
 # Service name
-redis_service_name: "redis_{{ redis_port }}"
+redis_service_name: "{{ redis_port }}"
+redis_systemd_service_name: "redis_{{ redis_service_name }}"
+redis_config_filename: "redis_{{ redis_service_name }}.conf"
+redis_config_dir: "/etc/redis"
+redis_config: "{{ redis_config_dir }}/{{ redis_config_filename }}"
 
 ## Networking/connection options
 redis_bind: 0.0.0.0
@@ -47,9 +51,9 @@ redis_slave_priority: 100
 redis_repl_backlog_size: false
 
 ## Logging
-redis_logfile: '""'
+redis_logfile: "/var/log/redis/{{ redis_service_name }}.log"
 # Enable syslog. "yes" or "no"
-redis_syslog_enabled: "yes"
+redis_syslog_enabled: "no"
 redis_syslog_ident: "{{ redis_service_name }}"
 # Syslog facility. Must be USER or LOCAL0-LOCAL7
 redis_syslog_facility: USER
@@ -66,7 +70,7 @@ redis_slowlog_log_slower_than: 10000
 redis_slowlog_max_len: 128
 # Redis memory limit (e.g. 4294967296, 4096mb, 4gb)
 redis_maxmemory: false
-redis_maxmemory_policy: noeviction
+redis_maxmemory_policy: allkeys-lru
 redis_rename_commands: []
 # How frequently to snapshot the database to disk
 # e.g. "900 1" => 900 seconds if at least 1 key changed
@@ -84,20 +88,23 @@ redis_auto_aof_rewrite_min_size: "64mb"
 ## Redis sentinel configs
 # Set this to true on a host to configure it as a Sentinel
 redis_sentinel: false
-redis_sentinel_dir: /var/lib/redis/sentinel_{{ redis_sentinel_port }}
+redis_sentinel_dir: /var/lib/redis/sentinel_{{ redis_service_name }}
+redis_sentinel_systemd_service_name: sentinel_{{ redis_service_name }}
+redis_sentinel_config_filename: sentinel_{{ redis_service_name }}.conf
+redis_sentinel_config: "{{ redis_config_dir }}/{{ redis_sentinel_config_filename }}"
 redis_sentinel_bind: 0.0.0.0
 redis_sentinel_port: 26379
-redis_sentinel_pidfile: /var/run/redis/sentinel_{{ redis_sentinel_port }}.pid
-redis_sentinel_logfile: '""'
-redis_sentinel_syslog_ident: sentinel_{{ redis_sentinel_port }}
+redis_sentinel_pidfile: /var/run/redis/sentinel_{{ redis_service_name }}.pid
+redis_sentinel_logfile: /var/log/redis/sentinel_{{ redis_service_name }}.log
+redis_sentinel_syslog_ident: sentinel_{{ redis_service_name }}
+redis_sentinel_master_ip: localhost
 redis_sentinel_monitors:
   - name: master01
-    host: localhost
+    host: "{{ redis_sentinel_master_ip }}"
     port: 6379
     quorum: 2
-    auth_pass: ant1r3z
-    down_after_milliseconds: 30000
+    down_after_milliseconds: 500
     parallel_syncs: 1
-    failover_timeout: 180000
+    failover_timeout: 60000
     notification_script: false
     client_reconfig_script: false

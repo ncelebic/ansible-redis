@@ -1,0 +1,14 @@
+[Unit]
+Description=Redis redis_{{redis_service_name}} database server
+After=network.target
+
+[Service]
+ExecStartPre=/bin/mkdir -p {{redis_dir}}
+ExecStartPre=/bin/cp -u {{redis_config}} {{redis_dir}}/{{redis_config_filename}}
+ExecStart=/usr/bin/redis-server {{redis_dir}}/{{redis_config_filename}} --daemonize no
+ExecStop=/usr/bin/redis-cli -p {{redis_port}} shutdown
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target

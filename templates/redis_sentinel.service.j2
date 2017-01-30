@@ -1,0 +1,14 @@
+[Unit]
+Description=Redis redis_sentinel_{{redis_service_name}} Sentinel service
+After=network.target
+
+[Service]
+ExecStartPre=/bin/mkdir -p {{redis_sentinel_dir}}
+ExecStartPre=/bin/cp -u {{redis_sentinel_config}} {{redis_sentinel_dir}}/{{redis_sentinel_config_filename}}
+ExecStart=/usr/bin/redis-sentinel {{redis_sentinel_dir}}/{{redis_sentinel_config_filename}} --daemonize no
+ExecStop=/usr/bin/redis-cli -p {{redis_sentinel_port}} shutdown
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target

@@ -6,24 +6,17 @@
     recurse: yes
     owner: "{{ redis_user }}"
 
-- name: create sentinel init script
+- name: create redis_sentinel service for RHEL7+
   template:
-    src: "{{ item }}"
-    dest: /etc/init.d/sentinel_{{ redis_sentinel_port }}
+    src: "redis_sentinel.service.j2"
+    dest: /usr/lib/systemd/system/{{ redis_sentinel_systemd_service_name }}.service
     mode: 0755
-  # Choose the distro-specific template. We must specify the templates
-  # path here because with_first_found tries to find files in files/
-  with_first_found:
-    - files:
-      - "{{ ansible_os_family }}/redis_sentinel.init.j2"
-      - default/redis_sentinel.init.j2
-      paths:
-        - ../templates
   when: redis_as_service
+
 
 - name: set sentinel to start at boot
   service:
-    name: sentinel_{{ redis_sentinel_port }}
+    name: "{{ redis_sentinel_systemd_service_name }}"
     enabled: yes
   when: redis_as_service
 
@@ -51,6 +44,7 @@
     path: "{{ redis_sentinel_logfile }}"
     owner: "{{ redis_user }}"
     group: "{{ redis_group }}"
+  changed_when: false
   when: redis_sentinel_logfile != '""'
 
 - name: check if sentinel pid directory exists
@@ -73,22 +67,8 @@
 - name: create sentinel config file
   template:
     src: redis_sentinel.conf.j2
-    dest: /etc/redis/sentinel_{{ redis_sentinel_port }}.conf
+    dest: "{{ redis_sentinel_config }}"
     owner: "{{ redis_user }}"
-  notify: restart sentinel
-
-- name: add sentinel init config file
-  template:
-    dest: /etc/sysconfig/sentinel_{{ redis_sentinel_port }}
-    src: redis.init.conf.j2
-  when: ansible_os_family == "RedHat"
-  notify: restart sentinel
-
-- name: add sentinel init config file
-  template:
-    dest: /etc/default/sentinel_{{ redis_sentinel_port }}
-    src: redis.init.conf.j2
-  when: ansible_os_family == "Debian"
   notify: restart sentinel
 
 # Flush handlers before ensuring the service is started to prevent
@@ -98,6 +78,6 @@
 
 - name: ensure sentinel is running
   service:
-    name: sentinel_{{ redis_sentinel_port }}
+    name: "{{ redis_sentinel_systemd_service_name }}"
     state: started
   when: redis_as_service

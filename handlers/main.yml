@@ -1,12 +1,12 @@
 ---
 - name: restart redis
   service:
-    name: "{{ redis_service_name }}"
+    name: "{{ redis_systemd_service_name }}"
     state: restarted
   when: redis_as_service
 
 - name: restart sentinel
   service:
-    name: sentinel_{{ redis_sentinel_port }}
+    name: "{{ redis_sentinel_systemd_service_name }}"
     state: restarted
   when: redis_as_service
